@@ -95,7 +95,22 @@ class MarcaController extends Controller
         if ($marca === null) {
             return response()->json(['erro' => 'Não foi possivel realizar o ajuste'], 404);
         }
-        $request->validate($marca->rules(), $marca->feedback());
+
+        if($request->method() === 'PATCH'){
+            $regrasDinamicas = array();
+
+            // percorrendo todas as regras definidas no Model
+            foreach($marca->ruler() as $input => $regra){
+                //coletar apenas as regras aplicaveis aos parâmetros da requisição PATCH
+                if(array_key_exists($input, $request->all())){
+                    $regrasDinamicas[$input] = $regra;
+                }
+            }
+            $request->validate($regrasDinamicas, $marca->feedback());
+        } else {
+            $request->validate($marca->rules(), $marca->feedback());
+        }
+
         $marca->update($request->all());
         return response()->json($marca, 200);
     }
