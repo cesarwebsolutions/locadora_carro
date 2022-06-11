@@ -17,10 +17,34 @@ class ModeloController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        return response()->json($this->modelo->with('marca')->get(), 200);
+        $modelos = array();
+        if($request->has('atributos_marca')){
+            $atributos_marca = $request->atributos_marca;
+            $modelos = $this->modelo->with('marca:id,' . $atributos_marca);
+        } else {
+            $modelos = $this->modelo->with('marca');
+        }
+
+        if($request->has('filtro')){
+            $filtros = explode(';', $request->filtro);
+            foreach($filtros as $key => $condicao){
+                $condicaoRecuperada = explode(':', $condicao);
+                $modelos = $modelos->where($condicaoRecuperada[0], $condicaoRecuperada[1], $condicaoRecuperada[2]);
+            }
+        }
+
+        if($request->has('atributo')){
+            $atributo = $request->atributo;
+            $modelos = $modelos->selectRaw($atributo)->get();
+        } else {
+            $modelos = $modelos->with('marca')->get();
+        }
+        // dd($request->atributo);
+        // $this->modelo->with('marca')->get()
+        return response()->json($modelos, 200);
     }
 
     /**
