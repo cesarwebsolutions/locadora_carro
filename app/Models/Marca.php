@@ -15,7 +15,7 @@ class Marca extends Model
         return
         [
             'nome' => 'required|unique:marcas,nome,'.$this->id.'|min:3',
-            'imagem' => 'required|file|mines:png,docx,xlsx,pdf,ppt,jpeg,mp3'
+            'imagem' => 'required|file|mimes:png,docx,xlsx,pdf,ppt,jpeg,mp3'
         ];
         /**
          *  1 - tabela
