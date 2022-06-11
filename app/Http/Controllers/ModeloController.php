@@ -118,22 +118,25 @@ class ModeloController extends Controller
             $request->validate($modelo->rules());
         }
 
+        $modelo->fill($request->all());
+
         if($request->file('imagem')){
             Storage::disk('public')->delete($modelo->imagem);
+            $imagem = $request->file('imagem');
+            $imagem_urn = $imagem->store('imagens/modelos', 'public');
+            $modelo->imagem = $imagem_urn;
         }
 
-        $imagem = $request->file('imagem');
-        $imagem_urn = $imagem->store('imagens/modelos', 'public');
-
-        $modelo->update([
-            'marca_id' => $request->marca_id,
-            'nome' => $request->nome,
-            'imagem' => $imagem_urn,
-            'numero_portas' => $request->numero_portas,
-            'lugares' => $request->lugares,
-            'air_bags' => $request->air_bags,
-            'abs' => $request->abs,
-        ]);
+        $modelo->save();
+        // $modelo->update([
+        //     'marca_id' => $request->marca_id,
+        //     'nome' => $request->nome,
+        //     'imagem' => $imagem_urn,
+        //     'numero_portas' => $request->numero_portas,
+        //     'lugares' => $request->lugares,
+        //     'air_bags' => $request->air_bags,
+        //     'abs' => $request->abs,
+        // ]);
 
         return response()->json($modelo, 200);
     }
