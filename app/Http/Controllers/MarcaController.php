@@ -17,12 +17,36 @@ class MarcaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
         // $marcas = Marca::all();
-        $marcas = $this->marca->with('modelos')->get();
-        return $marcas;
+        $marcas = array();
+
+        if($request->has('atributos_modelos')){
+            $atributos_modelos = $request->atributos_modelos;
+            $marcas = $this->marca->with('modelos:id,'.$atributos_modelos);
+        } else {
+            $marcas = $this->marca->with('modelos');
+        }
+
+        if($request->has('filtro')){
+            $filtros = explode(';', $request->filtro);
+            foreach($filtros as  $key => $condicao){
+                $condicaoRecuperada = explode(':', $condicao);
+                $marcas = $marcas->where($condicaoRecuperada[0], $condicaoRecuperada[1], $condicaoRecuperada[2]);
+            }
+        }
+
+        if($request->has('atributos')){
+            $atributos = $request->atributos;
+            $marcas = $marcas->selectRaw($atributos)->get();
+        } else {
+            $marcas = $marcas->get();
+        }
+
+        // $marcas = $this->marca->with('modelos')->get();
+        return response()->json($marcas, 200);
     }
 
     /**
@@ -80,7 +104,7 @@ class MarcaController extends Controller
     public function show($id)
     {
         //
-        $marca = $this->marca->with('modelos')->find($id);
+        $marca = $this->marca->with('marcas')->find($id);
         if($marca === null) {
             return response()->json(['erro' => 'Recurso pesquisado não existe'], 404);
         }
