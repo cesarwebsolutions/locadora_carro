@@ -113,10 +113,10 @@ class CarroController extends Controller
      * @param  \App\Models\Carro  $carro
      * @return \Illuminate\Http\Response
      */
-    public function show(Carro $carro)
+    public function show($id)
     {
         //
-        $carro = $this->carro->with('modelo')->find($carro);
+        $carro = $this->carro->with('modelo')->find($id);
         if ($carro === null) {
             return response()->json(['erro' => 'Recurso pesquisado não existe'], 404);
         }
